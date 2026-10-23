@@ -137,3 +137,15 @@ Trouvé en inspectant l'objet renvoyé dans le navigateur.
 
 **Vérification par l'IA :** ml5 se charge et la boucle de détection tourne sans erreur avec la caméra de test d'Edge.
 La détection d'une vraie personne n'a pas pu être testée sur PC → à tester sur téléphone.
+
+---
+
+## Étape 10 - Réglage du rythme
+
+**Prompt :**
+> Remet 40m et fais les apparaitres moins loins car la si on bouge pas c'est long avant d'arriver
+
+**Résultat :** zone de visibilité remise à 40 m ; les aliens apparaissent maintenant à 53-68 m à la vague 1
+(au lieu de 75-105 m), puis un peu plus près à chaque vague (minimum 45 m, toujours hors de la zone pour
+qu'on les voie d'abord sur la carte). Sans bouger, le premier alien entre dans la zone en ~10 s et
+atteint le joueur en ~30 s (au lieu de ~60 s).

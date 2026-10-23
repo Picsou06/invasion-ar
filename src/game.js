@@ -50,7 +50,7 @@ export class Game {
     this.spawnInterval = Math.max(1, 4 - this.wave * 0.4);
     this.speedFactor = 1 + (this.wave - 1) * 0.12;
     this.maxAlive = 3 + this.wave;
-    this.spawnDistance = Math.max(45, 80 - this.wave * 5);
+    this.spawnDistance = Math.max(45, 55 - this.wave * 2);
     this.spawnTimer = 0;
     this.breakTimer = WAVE_BREAK;
     this.state = 'wave-break';
@@ -87,7 +87,7 @@ export class Game {
 
     this.spawnTimer -= delta;
     if (this.toSpawn > 0 && this.spawnTimer <= 0 && this.aliens.aliens.length < this.maxAlive) {
-      this.aliens.spawnRandom(this.player.position, this.spawnDistance, this.spawnDistance + 30, this.speedFactor);
+      this.aliens.spawnRandom(this.player.position, this.spawnDistance, this.spawnDistance + 15, this.speedFactor);
       this.toSpawn -= 1;
       this.spawnTimer = this.spawnInterval;
     }

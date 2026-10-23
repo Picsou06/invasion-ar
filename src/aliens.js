@@ -4,7 +4,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 const PIXEL_SIZE = 0.25;
 const PIXEL_DEPTH = 0.35;
 const FRAME_DURATION = 0.5;
-export const VISIBLE_RANGE = 30;
+export const VISIBLE_RANGE = 40;
 const REACH_DISTANCE = 2;
 const HITBOX_GEOMETRY = new THREE.SphereGeometry(1.8, 8, 6);
 const HITBOX_MATERIAL = new THREE.MeshBasicMaterial({ visible: false });
