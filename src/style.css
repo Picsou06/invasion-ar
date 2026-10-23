@@ -52,6 +52,17 @@ html, body {
   border-radius: 50%;
 }
 
+#radar {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: 2px solid rgba(59, 255, 138, 0.6);
+  pointer-events: none;
+}
+
 #debug {
   position: fixed;
   top: 60px;

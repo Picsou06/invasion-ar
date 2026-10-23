@@ -6,6 +6,7 @@ import { startCameraFeed } from './cameraFeed.js';
 import { AlienManager } from './aliens.js';
 import { Shooter } from './shooting.js';
 import { Explosions } from './effects.js';
+import { Radar } from './radar.js';
 
 const canvas = document.getElementById('scene3d');
 const { renderer, scene, camera } = createScene(canvas);
@@ -13,6 +14,7 @@ const orientation = new OrientationController(camera, canvas);
 const aliens = new AlienManager(scene);
 const shooter = new Shooter(camera, scene);
 const explosions = new Explosions(scene);
+const radar = new Radar(document.getElementById('radar'));
 const timer = new Timer();
 let started = false;
 let spawnCooldown = 0;
@@ -82,6 +84,7 @@ renderer.setAnimationLoop((time) => {
   }
   shooter.update(delta);
   explosions.update(delta);
+  radar.draw(delta, orientation.heading, camera, aliens.aliens);
   updateDebug();
   renderer.render(scene, camera);
 });
