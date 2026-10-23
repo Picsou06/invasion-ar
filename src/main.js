@@ -13,6 +13,8 @@ import { MiniMap } from './minimap.js';
 import { Player } from './player.js';
 import { Sounds } from './audio.js';
 import { OffscreenIndicators } from './indicators.js';
+import { Music } from './music.js';
+import { HumanDetector } from './humanDetector.js';
 
 const debugMode = new URLSearchParams(location.search).has('debug');
 const canvas = document.getElementById('scene3d');
@@ -34,6 +36,14 @@ const miniMap = new MiniMap(
 const sounds = new Sounds();
 const indicators = new OffscreenIndicators(document.getElementById('indicators'));
 const muteButton = document.getElementById('btn-mute');
+const music = new Music(sounds);
+const video = document.getElementById('camera');
+const humanDetector = new HumanDetector(
+  video,
+  document.getElementById('humans'),
+  document.getElementById('ai-status')
+);
+const HUMAN_PENALTY = 25;
 const timer = new Timer();
 
 const debug = {
@@ -74,13 +84,28 @@ function updateDebug() {
 function fire() {
   if (!game.isRunning) return;
   const { fired, hit } = shooter.shoot(aliens.hitboxes);
-  if (fired) sounds.shoot();
-  if (!hit) return;
+  if (!fired) return;
+  sounds.shoot();
+  if (!hit) {
+    if (humanDetector.isPersonAt(window.innerWidth / 2, window.innerHeight / 2)) shootHuman();
+    return;
+  }
   const alien = hit.userData.alien;
   explosions.spawn(alien.object.position, alien.color);
   sounds.explosion();
   aliens.remove(alien);
   game.addKill(alien);
+}
+
+/**
+ * Penalizes the player for shooting at a real person detected in the camera feed.
+ */
+function shootHuman() {
+  game.penalize(HUMAN_PENALTY);
+  hud.showBanner(`Humain touché ! -${HUMAN_PENALTY}`, true);
+  hud.flashDamage();
+  sounds.damage();
+  navigator.vibrate?.([80, 60, 80]);
 }
 
 /**
@@ -102,6 +127,7 @@ function handleGameEvents(events) {
     }
     if (event === 'game-over') {
       hud.showGameOver(game.score, game.bestScore);
+      music.stop();
       sounds.gameOver();
     }
   }
@@ -115,6 +141,7 @@ function startGame() {
   hud.showGame();
   muteButton.classList.remove('hidden');
   miniMap.show();
+  music.start();
   hud.showBanner('Préparez-vous !');
 }
 
@@ -154,9 +181,10 @@ document.getElementById('btn-play').addEventListener('click', async (e) => {
   launched = true;
   sounds.unlock();
   await orientation.start();
-  await startCameraFeed(document.getElementById('camera'));
+  await startCameraFeed(video);
   player.startGps((status) => miniMap.setStatus(status));
   startGame();
+  humanDetector.start();
 });
 document.getElementById('btn-replay').addEventListener('click', (e) => {
   e.currentTarget.blur();
@@ -164,5 +192,7 @@ document.getElementById('btn-replay').addEventListener('click', (e) => {
 });
 muteButton.addEventListener('click', () => {
   muteButton.blur();
-  muteButton.textContent = sounds.toggleMute() ? '🔇' : '🔊';
+  const muted = sounds.toggleMute();
+  music.setMuted(muted);
+  muteButton.textContent = muted ? '🔇' : '🔊';
 });

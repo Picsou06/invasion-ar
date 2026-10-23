@@ -16,7 +16,7 @@ html, body {
   -webkit-user-select: none;
 }
 
-#camera, #scene3d {
+#camera, #humans, #scene3d {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -137,7 +137,7 @@ html, body {
 
 #debug {
   position: fixed;
-  top: 60px;
+  top: 88px;
   left: 8px;
   padding: 6px 10px;
   background: var(--panel);
@@ -207,6 +207,21 @@ html, body {
 @keyframes banner-pop {
   from { transform: scale(0.5); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+#banner.warning {
+  color: var(--red);
+}
+
+#ai-status {
+  position: fixed;
+  top: 56px;
+  left: 8px;
+  padding: 4px 8px;
+  background: var(--panel);
+  border-radius: 6px;
+  font-size: 12px;
+  pointer-events: none;
 }
 
 #damage {

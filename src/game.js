@@ -110,6 +110,15 @@ export class Game {
   }
 
   /**
+   * Removes points from the score, without going below zero.
+   *
+   * @param {number} points points to remove
+   */
+  penalize(points) {
+    this.score = Math.max(0, this.score - points);
+  }
+
+  /**
    * Ends the game and saves the best score.
    */
   end() {

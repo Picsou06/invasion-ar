@@ -8,7 +8,8 @@ Projet du cours "Sensibilisation à la programmation multimédia" (TD4 : program
 ## Stack
 - **Vite** (dev server + build), modules ES, JavaScript sans framework UI (le jeu est un canvas 3D, un framework UI n'apporterait rien).
 - **three** pour la 3D, **leaflet** pour la carte, installés via npm à versions figées dans `package.json`.
-- Sons générés avec la Web Audio API (pas de fichiers audio).
+- **ml5.js 1.4.0** (détection des humains, COCO-SSD) chargé depuis le CDN jsDelivr au lancement de la partie : le bundle UMD de ml5 (tfjs inclus) ne passe pas par Vite.
+- Sons et musique 8-bit générés avec la Web Audio API (pas de fichiers audio).
 - Déploiement automatique sur **GitHub Pages** par GitHub Actions (`.github/workflows/deploy.yml`) à chaque push sur `main`.
 
 ## Règles de code

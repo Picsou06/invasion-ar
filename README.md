@@ -2,7 +2,7 @@
 
 Jeu de tir en réalité augmentée géolocalisé pour smartphone : des envahisseurs en pixel-art atterrissent
 autour du joueur dans le monde réel et foncent sur sa position. Il les repère sur la carte, se déplace vers
-eux, et quand ils sont à moins de 40 m ils apparaissent dans le flux caméra : il vise en tournant sur lui-même
+eux, et quand ils sont à moins de 30 m ils apparaissent dans le flux caméra : il vise en tournant sur lui-même
 et touche l'écran pour tirer.
 
 **Jouer :** https://picsou06.github.io/invasion-ar/ (sur smartphone, autoriser caméra, mouvement et position)
@@ -19,8 +19,9 @@ Le déroulé du développement avec l'IA est dans [`PROMPTS.md`](PROMPTS.md).
 - Tir par Raycaster depuis le viseur, explosions en particules
 - Position du joueur par **GPS** (lissée), aliens placés en mètres autour de lui et convertis en lat/lon
 - Radar 2D de 150 m orienté selon le regard, flèches au bord de l'écran vers les aliens proches hors champ
-- Mini-carte **Leaflet** qui suit le joueur : zone de tir de 40 m et tous les aliens
-- Sons rétro générés avec la Web Audio API
+- Mini-carte **Leaflet** qui suit le joueur : zone de tir de 30 m et tous les aliens
+- **ml5.js** (COCO-SSD) détecte les humains dans la caméra : ils sont encadrés, et leur tirer dessus coûte 25 points
+- Musique 8-bit originale et sons rétro générés avec la Web Audio API
 - Mode PC : souris/flèches pour viser, ZQSD/WASD pour se déplacer, clic/Espace pour tirer
 
 ## Lancer en local
@@ -47,5 +48,7 @@ Puis http://localhost:5173/. La caméra et les capteurs du téléphone nécessit
 | `src/game.js` | Règles : vagues, vies, score |
 | `src/hud.js` | Affichage du score, bannières, écrans |
 | `src/audio.js` | Effets sonores synthétisés |
+| `src/music.js` | Musique 8-bit en boucle (séquenceur Web Audio) |
+| `src/humanDetector.js` | Détection des humains avec ml5.js et pénalité de tir |
 
 Déploiement automatique sur GitHub Pages à chaque push sur `main` (`.github/workflows/deploy.yml`).

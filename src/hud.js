@@ -38,9 +38,11 @@ export class Hud {
    * Shows a big message in the middle of the screen for a short time.
    *
    * @param {string} text message to display
+   * @param {boolean} [warning=false] true to display the message in red
    */
-  showBanner(text) {
+  showBanner(text, warning = false) {
     this.banner.textContent = text;
+    this.banner.classList.toggle('warning', warning);
     this.banner.classList.remove('hidden');
     clearTimeout(this.bannerTimeout);
     this.bannerTimeout = setTimeout(() => this.banner.classList.add('hidden'), BANNER_DURATION);

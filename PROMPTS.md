@@ -114,3 +114,26 @@ iPhone : non testé (pas d'appareil disponible).
 
 **Vérification par l'IA :** déplacement de ~100 m vers le nord au clavier (visible sur la carte), 90 points
 après une rafale quand les aliens sont arrivés dans la zone, écran de fin après 90 s sans tirer.
+
+---
+
+## Étape 9 - Zone de 30 m, musique 8-bit, détection des humains (ml5.js)
+
+**Prompt :**
+> Passe a 30m pour les voir. Peut tu mettre une musique de fond peut etre en 8bit pour respecter le theme.
+> Peut tu ajouter ml5.js pour detecter les humains et si tu tire sur un humain tu perd un peu de point.
+
+**Résultat :**
+- Les aliens deviennent visibles et touchables à moins de 30 m (au lieu de 40 m).
+- `music.js` : musique 8-bit originale en boucle (mélodie en onde carrée, basse en triangle, charleston en bruit blanc),
+  jouée par un séquenceur Web Audio ; coupée par le bouton muet, arrêtée à la fin de partie.
+- `humanDetector.js` : ml5.js (modèle COCO-SSD) analyse la caméra 5 fois par seconde, encadre les humains
+  détectés (« Humain 87% ») et un tir qui ne touche pas d'alien mais tombe sur un humain coûte 25 points.
+  Choix : si un alien est devant l'humain, le laser touche l'alien en premier et il n'y a pas de pénalité.
+
+**Bug trouvé et corrigé :** `ml5.objectDetection('cocossd')` renvoie une *Promise* quand p5.js n'est pas utilisé
+(contrairement aux exemples de la doc, écrits pour p5) → erreur `detect is not a function`. Correction : `await`.
+Trouvé en inspectant l'objet renvoyé dans le navigateur.
+
+**Vérification par l'IA :** ml5 se charge et la boucle de détection tourne sans erreur avec la caméra de test d'Edge.
+La détection d'une vraie personne n'a pas pu être testée sur PC → à tester sur téléphone.

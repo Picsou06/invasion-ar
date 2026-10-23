@@ -8,6 +8,7 @@
 </head>
 <body>
   <video id="camera" playsinline muted autoplay></video>
+  <canvas id="humans"></canvas>
   <canvas id="scene3d"></canvas>
   <div id="crosshair"></div>
   <div id="damage"></div>
@@ -24,6 +25,7 @@
     <div id="hud-lives"></div>
   </div>
   <div id="banner" class="hidden"></div>
+  <div id="ai-status" class="hidden"></div>
   <button id="btn-mute" class="hidden" aria-label="Couper le son">🔊</button>
 
   <div id="debug" class="hidden">
@@ -36,8 +38,9 @@
     <h1>👾 Invasion AR</h1>
     <p>Des envahisseurs atterrissent autour de toi et foncent sur ta position !<br />
     Repère-les sur la carte et le radar, déplace-toi vers eux :<br />
-    dans la zone rouge (moins de 40 m), ils apparaissent dans la caméra.<br />
-    Vise en tournant sur toi-même, touche l'écran pour tirer.</p>
+    dans la zone rouge (moins de 30 m), ils apparaissent dans la caméra.<br />
+    Vise en tournant sur toi-même, touche l'écran pour tirer.<br />
+    ⚠️ Une IA (ml5.js) repère les humains dans la caméra : leur tirer dessus coûte des points !</p>
     <p class="small">Sur PC : souris/flèches pour viser, ZQSD pour se déplacer, clic ou Espace pour tirer.</p>
     <p id="menu-best"></p>
     <button id="btn-play">Jouer</button>
