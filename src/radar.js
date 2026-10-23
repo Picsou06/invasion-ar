@@ -1,6 +1,7 @@
 import * as THREE from 'three';
+import { VISIBLE_RANGE } from './aliens.js';
 
-const RANGE = 35;
+const RANGE = 150;
 const SWEEP_SPEED = 2.5;
 
 /**
@@ -35,8 +36,9 @@ export class Radar {
    * @param {number} heading compass heading of the camera, in degrees
    * @param {THREE.PerspectiveCamera} camera camera used to draw the field of view
    * @param {import('./aliens.js').Alien[]} aliens aliens to display
+   * @param {THREE.Vector3} player current player position, center of the radar
    */
-  draw(delta, heading, camera, aliens) {
+  draw(delta, heading, camera, aliens, player) {
     const { ctx, size } = this;
     const radius = size / 2;
     this.sweep = (this.sweep + SWEEP_SPEED * delta) % (Math.PI * 2);
@@ -49,13 +51,13 @@ export class Radar {
     this.drawFieldOfView(radius, camera);
     this.drawSweep(radius);
     this.drawNorth(radius, heading);
-    for (const alien of aliens) this.drawAlien(radius, heading, alien);
+    for (const alien of aliens) this.drawAlien(radius, heading, alien, player);
 
     ctx.restore();
   }
 
   /**
-   * Draws the disc and the distance rings.
+   * Draws the disc, the distance rings and the dashed shooting-range ring.
    *
    * @param {number} radius radar radius in pixels
    */
@@ -72,6 +74,12 @@ export class Radar {
       ctx.arc(0, 0, (radius - 1) * fraction, 0, Math.PI * 2);
       ctx.stroke();
     }
+    ctx.strokeStyle = 'rgba(255, 59, 59, 0.8)';
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.arc(0, 0, (radius - 1) * (VISIBLE_RANGE / RANGE), 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
   }
 
   /**
@@ -126,20 +134,26 @@ export class Radar {
   }
 
   /**
-   * Draws one alien as a dot, relative to where the player is looking.
+   * Draws one alien as a dot, relative to the player position and to where
+   * the player is looking. Aliens out of range stick to the edge; aliens in
+   * shooting range are drawn bigger.
    *
    * @param {number} radius radar radius in pixels
    * @param {number} heading compass heading of the camera, in degrees
    * @param {import('./aliens.js').Alien} alien alien to draw
+   * @param {THREE.Vector3} player current player position
    */
-  drawAlien(radius, heading, alien) {
+  drawAlien(radius, heading, alien, player) {
     const { ctx } = this;
-    const { x, z } = alien.object.position;
+    const x = alien.object.position.x - player.x;
+    const z = alien.object.position.z - player.z;
     const bearing = Math.atan2(x, -z) - THREE.MathUtils.degToRad(heading);
     const distance = Math.min(Math.hypot(x, z) / RANGE, 1) * (radius - 6);
     ctx.fillStyle = `#${alien.color.toString(16).padStart(6, '0')}`;
+    ctx.globalAlpha = alien.isVisible ? 1 : 0.6;
     ctx.beginPath();
-    ctx.arc(Math.sin(bearing) * distance, -Math.cos(bearing) * distance, 4, 0, Math.PI * 2);
+    ctx.arc(Math.sin(bearing) * distance, -Math.cos(bearing) * distance, alien.isVisible ? 4.5 : 3, 0, Math.PI * 2);
     ctx.fill();
+    ctx.globalAlpha = 1;
   }
 }

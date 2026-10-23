@@ -10,22 +10,26 @@ import { Radar } from './radar.js';
 import { Game } from './game.js';
 import { Hud } from './hud.js';
 import { MiniMap } from './minimap.js';
+import { Player } from './player.js';
 import { Sounds } from './audio.js';
 import { OffscreenIndicators } from './indicators.js';
 
+const debugMode = new URLSearchParams(location.search).has('debug');
 const canvas = document.getElementById('scene3d');
-const { renderer, scene, camera } = createScene(canvas);
+const { renderer, scene, camera, compass } = createScene(canvas, debugMode);
+const player = new Player();
 const orientation = new OrientationController(camera, canvas);
 const aliens = new AlienManager(scene);
 const shooter = new Shooter(camera, scene);
 const explosions = new Explosions(scene);
 const radar = new Radar(document.getElementById('radar'));
-const game = new Game(aliens);
+const game = new Game(aliens, player);
 const hud = new Hud();
 const miniMap = new MiniMap(
   document.getElementById('minimap-panel'),
   document.getElementById('minimap'),
-  document.getElementById('minimap-status')
+  document.getElementById('minimap-status'),
+  player
 );
 const sounds = new Sounds();
 const indicators = new OffscreenIndicators(document.getElementById('indicators'));
@@ -40,7 +44,7 @@ const debug = {
   beta: document.getElementById('debug-beta'),
   gamma: document.getElementById('debug-gamma'),
 };
-debug.panel.classList.toggle('hidden', !new URLSearchParams(location.search).has('debug'));
+debug.panel.classList.toggle('hidden', !debugMode);
 
 /**
  * Formats a sensor angle for the debug panel.
@@ -125,13 +129,16 @@ renderer.setAnimationLoop((time) => {
   timer.update(time);
   const delta = Math.min(timer.getDelta(), 0.1);
   orientation.update();
-  const arrived = game.isRunning ? aliens.update(delta, timer.getElapsed()) : [];
+  player.update(delta, orientation.heading);
+  camera.position.copy(player.position);
+  compass.position.copy(player.position);
+  const arrived = game.isRunning ? aliens.update(delta, timer.getElapsed(), player.position) : [];
   handleGameEvents(game.update(delta, arrived));
   shooter.update(delta);
   explosions.update(delta);
-  radar.draw(delta, orientation.heading, camera, aliens.aliens);
+  radar.draw(delta, orientation.heading, camera, aliens.aliens, player.position);
   miniMap.update(delta, orientation.heading, aliens.aliens);
-  indicators.update(camera, aliens.aliens);
+  indicators.update(camera, aliens.visibleAliens);
   hud.update(game);
   updateDebug();
   renderer.render(scene, camera);
@@ -148,7 +155,7 @@ document.getElementById('btn-play').addEventListener('click', async (e) => {
   sounds.unlock();
   await orientation.start();
   await startCameraFeed(document.getElementById('camera'));
-  miniMap.start();
+  player.startGps((status) => miniMap.setStatus(status));
   startGame();
 });
 document.getElementById('btn-replay').addEventListener('click', (e) => {

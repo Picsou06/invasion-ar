@@ -4,7 +4,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 const PIXEL_SIZE = 0.25;
 const PIXEL_DEPTH = 0.35;
 const FRAME_DURATION = 0.5;
-const SPAWN_DISTANCE = 32;
+export const VISIBLE_RANGE = 40;
 const REACH_DISTANCE = 2;
 const HITBOX_GEOMETRY = new THREE.SphereGeometry(1.8, 8, 6);
 const HITBOX_MATERIAL = new THREE.MeshBasicMaterial({ visible: false });
@@ -13,7 +13,7 @@ export const ALIEN_TYPES = {
   squid: {
     color: 0xff4fd8,
     points: 30,
-    speed: 1.4,
+    speed: 2.2,
     frames: [
       ['...##...', '..####..', '.######.', '##.##.##', '########', '..#..#..', '.#.##.#.', '#.#..#.#'],
       ['...##...', '..####..', '.######.', '##.##.##', '########', '.#.##.#.', '#......#', '.#....#.'],
@@ -22,7 +22,7 @@ export const ALIEN_TYPES = {
   crab: {
     color: 0x3bff8a,
     points: 20,
-    speed: 1.1,
+    speed: 1.8,
     frames: [
       ['..#.....#..', '...#...#...', '..#######..', '.##.###.##.', '###########', '#.#######.#', '#.#.....#.#', '...##.##...'],
       ['..#.....#..', '#..#...#..#', '#.#######.#', '###.###.###', '###########', '.#########.', '..#.....#..', '.#.......#.'],
@@ -31,7 +31,7 @@ export const ALIEN_TYPES = {
   octopus: {
     color: 0x4fc3ff,
     points: 10,
-    speed: 0.8,
+    speed: 1.4,
     frames: [
       ['....####....', '.##########.', '############', '###..##..###', '############', '...##..##...', '..##.##.##..', '##........##'],
       ['....####....', '.##########.', '############', '###..##..###', '############', '..###..###..', '.##..##..##.', '..##....##..'],
@@ -80,25 +80,27 @@ function getFrames(type) {
 }
 
 /**
- * A pixel-art space invader flying toward the player. Its position is kept in
- * spherical coordinates around the player (azimuth, elevation, distance).
+ * A pixel-art space invader placed in the real world (meters around the GPS
+ * origin). It always flies toward the player's current position and only
+ * becomes visible in the AR view when it is close enough.
  */
 export class Alien {
   /**
    * @param {string} type key of ALIEN_TYPES
-   * @param {number} azimuth compass direction it comes from, in radians (0 = north)
-   * @param {number} elevation angle above the horizon, in radians
+   * @param {number} x east position in meters
+   * @param {number} z south position in meters
+   * @param {number} height flying height in meters while far away
    * @param {number} speedFactor multiplier applied to the type base speed
    */
-  constructor(type, azimuth, elevation, speedFactor) {
+  constructor(type, x, z, height, speedFactor) {
     const config = ALIEN_TYPES[type];
     this.type = type;
     this.points = config.points;
     this.color = config.color;
     this.speed = config.speed * speedFactor;
-    this.azimuth = azimuth;
-    this.elevation = elevation;
-    this.distance = SPAWN_DISTANCE;
+    this.ground = new THREE.Vector2(x, z);
+    this.height = height;
+    this.distance = Infinity;
     this.wobblePhase = Math.random() * Math.PI * 2;
     this.frames = getFrames(type);
 
@@ -111,38 +113,42 @@ export class Alien {
 
     this.object = new THREE.Group();
     this.object.add(this.mesh, this.hitbox);
-    this.updatePosition(0);
+    this.object.visible = false;
   }
 
   /**
-   * Moves the alien toward the player and swaps its animation frame.
+   * Moves the alien toward the player, lowers it to eye level as it gets
+   * closer, swaps its animation frame and shows it only within VISIBLE_RANGE.
    *
    * @param {number} delta seconds since the previous frame
    * @param {number} elapsed seconds since the game started
+   * @param {THREE.Vector3} player current player position
    */
-  update(delta, elapsed) {
-    this.distance -= this.speed * delta;
-    this.elevation *= 1 - 0.15 * delta;
+  update(delta, elapsed, player) {
+    const toPlayer = new THREE.Vector2(player.x - this.ground.x, player.z - this.ground.y);
+    this.distance = toPlayer.length();
+    if (this.distance > 0.001) {
+      this.ground.addScaledVector(toPlayer.normalize(), Math.min(this.speed * delta, this.distance));
+    }
+
+    const side = new THREE.Vector2(-toPlayer.y, toPlayer.x);
+    const wobble = Math.sin(elapsed * 1.5 + this.wobblePhase) * Math.min(this.distance * 0.12, 3);
+    const altitude = this.height * Math.min(this.distance / VISIBLE_RANGE, 1);
+    this.object.position.set(
+      this.ground.x + side.x * wobble,
+      altitude,
+      this.ground.y + side.y * wobble
+    );
+    this.object.lookAt(player.x, 0, player.z);
+    this.object.visible = this.isVisible;
     this.mesh.geometry = this.frames[Math.floor(elapsed / FRAME_DURATION) % 2];
-    this.updatePosition(elapsed);
   }
 
   /**
-   * Converts the spherical coordinates (plus a small side-to-side wobble)
-   * into a world position and turns the alien to face the player.
-   *
-   * @param {number} elapsed seconds since the game started
+   * @returns {boolean} true when the alien is close enough to be seen and shot
    */
-  updatePosition(elapsed) {
-    const wobble = Math.sin(elapsed * 1.5 + this.wobblePhase) * 0.12;
-    const azimuth = this.azimuth + wobble;
-    const horizontal = Math.cos(this.elevation) * this.distance;
-    this.object.position.set(
-      Math.sin(azimuth) * horizontal,
-      Math.sin(this.elevation) * this.distance,
-      -Math.cos(azimuth) * horizontal
-    );
-    this.object.lookAt(0, 0, 0);
+  get isVisible() {
+    return this.distance <= VISIBLE_RANGE;
   }
 
   /**
@@ -166,17 +172,26 @@ export class AlienManager {
   }
 
   /**
-   * Spawns an alien of a random type from a random direction.
+   * Spawns an alien of a random type in a random direction around the player.
    *
+   * @param {THREE.Vector3} player current player position
+   * @param {number} minDistance minimum spawn distance in meters
+   * @param {number} maxDistance maximum spawn distance in meters
    * @param {number} speedFactor speed multiplier, grows with the waves
    * @returns {Alien} the new alien
    */
-  spawnRandom(speedFactor = 1) {
+  spawnRandom(player, minDistance, maxDistance, speedFactor = 1) {
     const types = Object.keys(ALIEN_TYPES);
     const type = types[Math.floor(Math.random() * types.length)];
     const azimuth = Math.random() * Math.PI * 2;
-    const elevation = THREE.MathUtils.degToRad(THREE.MathUtils.randFloat(-5, 25));
-    const alien = new Alien(type, azimuth, elevation, speedFactor);
+    const distance = THREE.MathUtils.randFloat(minDistance, maxDistance);
+    const alien = new Alien(
+      type,
+      player.x + Math.sin(azimuth) * distance,
+      player.z - Math.cos(azimuth) * distance,
+      THREE.MathUtils.randFloat(3, 12),
+      speedFactor
+    );
     this.aliens.push(alien);
     this.scene.add(alien.object);
     return alien;
@@ -187,12 +202,13 @@ export class AlienManager {
    *
    * @param {number} delta seconds since the previous frame
    * @param {number} elapsed seconds since the game started
+   * @param {THREE.Vector3} player current player position
    * @returns {Alien[]} aliens that reached the player during this frame
    */
-  update(delta, elapsed) {
+  update(delta, elapsed, player) {
     const arrived = [];
     for (const alien of this.aliens) {
-      alien.update(delta, elapsed);
+      alien.update(delta, elapsed, player);
       if (alien.hasReachedPlayer) arrived.push(alien);
     }
     arrived.forEach((alien) => this.remove(alien));
@@ -218,9 +234,16 @@ export class AlienManager {
   }
 
   /**
-   * @returns {THREE.Object3D[]} invisible hitboxes used for ray casting
+   * @returns {THREE.Object3D[]} hitboxes of the aliens close enough to be shot
    */
   get hitboxes() {
-    return this.aliens.map((alien) => alien.hitbox);
+    return this.visibleAliens.map((alien) => alien.hitbox);
+  }
+
+  /**
+   * @returns {Alien[]} aliens currently within VISIBLE_RANGE
+   */
+  get visibleAliens() {
+    return this.aliens.filter((alien) => alien.isVisible);
   }
 }

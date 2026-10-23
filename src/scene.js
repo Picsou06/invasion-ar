@@ -9,13 +9,14 @@ const COMPASS_POINTS = [
 ];
 
 /**
- * Creates the renderer, scene and camera. The player stands at the origin;
- * north is -Z, east is +X and up is +Y. One world unit is one meter.
+ * Creates the renderer, scene and camera. One world unit is one meter;
+ * north is -Z, east is +X and up is +Y.
  *
  * @param {HTMLCanvasElement} canvas canvas drawn on top of the camera feed
- * @returns {{renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.PerspectiveCamera}}
+ * @param {boolean} showCompass true to display the N/E/S/O alignment markers (debug)
+ * @returns {{renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.PerspectiveCamera, compass: THREE.Group}}
  */
-export function createScene(canvas) {
+export function createScene(canvas, showCompass) {
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -28,7 +29,9 @@ export function createScene(canvas) {
   sun.position.set(5, 10, 5);
   scene.add(sun);
 
-  addCompassMarkers(scene);
+  const compass = createCompassMarkers();
+  compass.visible = showCompass;
+  scene.add(compass);
 
   const resize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -38,22 +41,25 @@ export function createScene(canvas) {
   window.addEventListener('resize', resize);
   resize();
 
-  return { renderer, scene, camera };
+  return { renderer, scene, camera, compass };
 }
 
 /**
- * Places a floating letter on the horizon for each cardinal direction,
- * so the player can check that the AR view is aligned with the real world.
+ * Builds a floating letter on the horizon for each cardinal direction, used
+ * in debug mode to check that the AR view is aligned with the real world.
+ * The group should follow the player position.
  *
- * @param {THREE.Scene} scene scene receiving the markers
+ * @returns {THREE.Group} group holding the four markers
  */
-function addCompassMarkers(scene) {
+function createCompassMarkers() {
+  const group = new THREE.Group();
   for (const point of COMPASS_POINTS) {
     const sprite = createTextSprite(point.label, point.color);
     const rad = THREE.MathUtils.degToRad(point.angle);
     sprite.position.set(Math.sin(rad) * COMPASS_DISTANCE, 0, -Math.cos(rad) * COMPASS_DISTANCE);
-    scene.add(sprite);
+    group.add(sprite);
   }
+  return group;
 }
 
 /**

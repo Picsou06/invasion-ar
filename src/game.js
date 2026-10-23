@@ -10,9 +10,11 @@ const BEST_SCORE_KEY = 'invasion-ar-best-score';
 export class Game {
   /**
    * @param {import('./aliens.js').AlienManager} aliens manager used to spawn and clear aliens
+   * @param {import('./player.js').Player} player player the aliens spawn around
    */
-  constructor(aliens) {
+  constructor(aliens, player) {
     this.aliens = aliens;
+    this.player = player;
     this.state = 'menu';
     this.bestScore = Game.loadBestScore();
     this.reset();
@@ -40,14 +42,15 @@ export class Game {
   }
 
   /**
-   * Prepares the next wave: more aliens, spawned faster and flying faster.
+   * Prepares the next wave: more aliens, spawned faster, closer and flying faster.
    */
   nextWave() {
     this.wave += 1;
-    this.toSpawn = 4 + this.wave * 2;
-    this.spawnInterval = Math.max(0.6, 2.4 - this.wave * 0.2);
+    this.toSpawn = 3 + this.wave * 2;
+    this.spawnInterval = Math.max(1, 4 - this.wave * 0.4);
     this.speedFactor = 1 + (this.wave - 1) * 0.12;
     this.maxAlive = 3 + this.wave;
+    this.spawnDistance = Math.max(45, 80 - this.wave * 5);
     this.spawnTimer = 0;
     this.breakTimer = WAVE_BREAK;
     this.state = 'wave-break';
@@ -84,7 +87,7 @@ export class Game {
 
     this.spawnTimer -= delta;
     if (this.toSpawn > 0 && this.spawnTimer <= 0 && this.aliens.aliens.length < this.maxAlive) {
-      this.aliens.spawnRandom(this.speedFactor);
+      this.aliens.spawnRandom(this.player.position, this.spawnDistance, this.spawnDistance + 30, this.speedFactor);
       this.toSpawn -= 1;
       this.spawnTimer = this.spawnInterval;
     }

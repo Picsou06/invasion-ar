@@ -56,7 +56,7 @@ Les cubes de test sont remplacés par des lettres N/E/S/O flottant sur l'horizon
 
 **Test PC :** _à compléter_
 
-**Test smartphone :** _à compléter (la caméra s'affiche ? les lettres restent fixes quand on tourne ? mode affiché avec `?debug` ?)_
+**Test smartphone (Android) :** caméra en fond OK, lettres N/E/S/O cohérentes avec la réalité.
 
 ---
 
@@ -90,8 +90,27 @@ Correction : `blur()` sur les boutons après le clic + garde contre un double la
 - 1 unité 3D = 1 mètre, ce qui permet de placer les aliens sur la vraie carte (1° de latitude ≈ 111 320 m).
 - Les sons sont synthétisés (oscillateurs + bruit blanc) : aucun fichier audio à charger.
 
-**Test PC :** _à compléter_
+**Test smartphone (Android) :** le toucher tire bien, la carte affiche la vraie position GPS.
+iPhone : non testé (pas d'appareil disponible).
 
-**Test smartphone :** _à compléter_
+---
 
-**Ce que j'ai appris :** _à compléter_
+## Étape 8 - Aliens géolocalisés et déplacement du joueur
+
+**Prompt :**
+> Pourquoi afficher les cardinaux (Nord sud etc) peut etre pour rendre la map utile en bas afficher que si on est proche
+> et que je puisse me deplacer pour tirer sur les aliens. et qu'ils avancent vers moi quand meme si je bouge pas
+> et meme si je bouge ils avancent aussi
+
+**Résultat :**
+- Les lettres N/E/S/O ne servaient qu'à vérifier l'alignement : elles ne s'affichent plus qu'avec `?debug`.
+- Nouveau module `player.js` : la position du joueur vient du GPS (convertie en mètres autour d'une origine,
+  lissée pour éviter les sauts de la caméra) ou de ZQSD/WASD sur PC.
+- Les aliens apparaissent à 50-110 m dans le monde réel et foncent vers la position **actuelle** du joueur,
+  qu'il bouge ou non. Ils ne sont visibles et touchables dans la caméra qu'à moins de 40 m.
+- La carte suit le joueur, montre la zone de tir (cercle rouge de 40 m) et tous les aliens, même lointains.
+  Le radar couvre 150 m avec la zone de tir en pointillés.
+- Difficulté progressive : à chaque vague, plus d'aliens, qui apparaissent plus souvent, plus près et plus rapides.
+
+**Vérification par l'IA :** déplacement de ~100 m vers le nord au clavier (visible sur la carte), 90 points
+après une rafale quand les aliens sont arrivés dans la zone, écran de fin après 90 s sans tirer.

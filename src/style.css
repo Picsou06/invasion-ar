@@ -67,13 +67,13 @@ html, body {
   position: fixed;
   right: 12px;
   bottom: 12px;
-  width: 150px;
+  width: 170px;
   pointer-events: none;
 }
 
 #minimap {
-  width: 150px;
-  height: 150px;
+  width: 170px;
+  height: 170px;
   border-radius: 12px;
   border: 2px solid rgba(79, 195, 255, 0.7);
   background: #1d2b4a;

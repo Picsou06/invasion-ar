@@ -1,30 +1,30 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { VISIBLE_RANGE } from './aliens.js';
 
-const DEFAULT_BASE = { lat: 43.616513, lng: 7.072094 };
-const ZOOM = 18;
-const METERS_PER_DEGREE = 111320;
+const ZOOM = 16;
 const REFRESH_INTERVAL = 0.2;
 
 /**
- * Small Leaflet map showing the player's real GPS position (the "base"),
- * the direction they are facing and the aliens converted to map coordinates.
+ * Leaflet map following the player's real position, showing the shooting
+ * range around them and every alien, even the ones too far to be seen in AR.
  */
 export class MiniMap {
   /**
    * @param {HTMLElement} panel hidden panel wrapping the map and its status line
    * @param {HTMLElement} container element holding the map
    * @param {HTMLElement} status element displaying the GPS status
+   * @param {import('./player.js').Player} player player to follow
    */
-  constructor(panel, container, status) {
+  constructor(panel, container, status, player) {
     this.panel = panel;
     this.status = status;
-    this.base = { ...DEFAULT_BASE };
+    this.player = player;
     this.refreshTimer = 0;
     this.alienMarkers = new Map();
 
     this.map = L.map(container, {
-      center: this.base,
+      center: player.latLng,
       zoom: ZOOM,
       zoomControl: false,
       dragging: false,
@@ -40,8 +40,15 @@ export class MiniMap {
       attribution: '© OpenStreetMap',
     }).addTo(this.map);
 
-    this.accuracyCircle = L.circle(this.base, { radius: 0, color: '#4fc3ff', weight: 1, fillOpacity: 0.15, interactive: false }).addTo(this.map);
-    this.playerMarker = L.marker(this.base, {
+    this.rangeCircle = L.circle(player.latLng, {
+      radius: VISIBLE_RANGE,
+      color: '#ff3b3b',
+      weight: 1,
+      dashArray: '4 4',
+      fillOpacity: 0.08,
+      interactive: false,
+    }).addTo(this.map);
+    this.playerMarker = L.marker(player.latLng, {
       icon: L.divIcon({ className: 'player-icon', html: '<div class="player-arrow"></div>', iconSize: [22, 22] }),
       interactive: false,
     }).addTo(this.map);
@@ -55,38 +62,7 @@ export class MiniMap {
   show() {
     this.panel.classList.remove('hidden');
     this.map.invalidateSize();
-    this.map.setView(this.base, ZOOM, { animate: false });
-  }
-
-  /**
-   * Starts following the player's GPS position. Keeps the default base if
-   * geolocation is unavailable or refused.
-   */
-  start() {
-    if (!navigator.geolocation) return;
-    this.setStatus('Recherche GPS…');
-    navigator.geolocation.watchPosition(
-      (position) => this.onPosition(position),
-      (err) => {
-        console.warn('Geolocation unavailable:', err);
-        this.setStatus('Pas de GPS : base IUT');
-      },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
-    );
-  }
-
-  /**
-   * Moves the base to the new GPS position.
-   *
-   * @param {GeolocationPosition} position position returned by the Geolocation API
-   */
-  onPosition(position) {
-    const { latitude, longitude, accuracy } = position.coords;
-    this.base = { lat: latitude, lng: longitude };
-    this.playerMarker.setLatLng(this.base);
-    this.accuracyCircle.setLatLng(this.base).setRadius(accuracy);
-    this.map.setView(this.base, ZOOM, { animate: false });
-    this.setStatus(`Base GPS ±${Math.round(accuracy)} m`);
+    this.map.setView(this.player.latLng, ZOOM, { animate: false });
   }
 
   /**
@@ -97,19 +73,7 @@ export class MiniMap {
   }
 
   /**
-   * Converts a position in the 3D world (meters around the player) to map coordinates.
-   *
-   * @param {{x: number, z: number}} position world position, north = -Z, east = +X
-   * @returns {{lat: number, lng: number}} geographic coordinates
-   */
-  worldToLatLng({ x, z }) {
-    const lat = this.base.lat - z / METERS_PER_DEGREE;
-    const lng = this.base.lng + x / (METERS_PER_DEGREE * Math.cos((this.base.lat * Math.PI) / 180));
-    return { lat, lng };
-  }
-
-  /**
-   * Refreshes the player direction and the alien markers a few times per second.
+   * Re-centers the map on the player and refreshes the markers a few times per second.
    *
    * @param {number} delta seconds since the previous frame
    * @param {number} heading compass heading of the camera, in degrees
@@ -120,6 +84,10 @@ export class MiniMap {
     if (this.refreshTimer > 0) return;
     this.refreshTimer = REFRESH_INTERVAL;
 
+    const position = this.player.latLng;
+    this.map.setView(position, ZOOM, { animate: false });
+    this.rangeCircle.setLatLng(position);
+    this.playerMarker.setLatLng(position);
     const arrow = this.playerMarker.getElement()?.firstChild;
     if (arrow) arrow.style.transform = `rotate(${heading}deg)`;
     this.updateAlienMarkers(aliens);
@@ -127,6 +95,7 @@ export class MiniMap {
 
   /**
    * Adds, moves and removes alien markers so they match the current aliens.
+   * Aliens in shooting range are drawn bigger.
    *
    * @param {import('./aliens.js').Alien[]} aliens aliens to display
    */
@@ -138,14 +107,13 @@ export class MiniMap {
       }
     }
     for (const alien of aliens) {
-      const latLng = this.worldToLatLng(alien.object.position);
-      if (this.alienMarkers.has(alien)) {
-        this.alienMarkers.get(alien).setLatLng(latLng);
-      } else {
+      const latLng = this.player.toLatLng(alien.object.position);
+      if (!this.alienMarkers.has(alien)) {
         const color = `#${alien.color.toString(16).padStart(6, '0')}`;
-        const marker = L.circleMarker(latLng, { radius: 5, color, fillColor: color, fillOpacity: 0.9, weight: 1, interactive: false });
+        const marker = L.circleMarker(latLng, { color, fillColor: color, fillOpacity: 0.9, weight: 1, interactive: false });
         this.alienMarkers.set(alien, marker.addTo(this.map));
       }
+      this.alienMarkers.get(alien).setLatLng(latLng).setRadius(alien.isVisible ? 6 : 4);
     }
   }
 }

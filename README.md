@@ -1,10 +1,12 @@
 # 👾 Invasion AR
 
-Jeu de tir en réalité augmentée pour smartphone : des envahisseurs en pixel-art arrivent de toutes les
-directions dans le flux caméra, le joueur tourne sur lui-même pour viser et touche l'écran pour tirer.
+Jeu de tir en réalité augmentée géolocalisé pour smartphone : des envahisseurs en pixel-art atterrissent
+autour du joueur dans le monde réel et foncent sur sa position. Il les repère sur la carte, se déplace vers
+eux, et quand ils sont à moins de 40 m ils apparaissent dans le flux caméra : il vise en tournant sur lui-même
+et touche l'écran pour tirer.
 
 **Jouer :** https://picsou06.github.io/invasion-ar/ (sur smartphone, autoriser caméra, mouvement et position)
-Ajouter `?debug` à l'URL pour afficher les valeurs des capteurs d'orientation.
+Ajouter `?debug` à l'URL pour afficher les valeurs des capteurs d'orientation et les repères N/E/S/O.
 
 Projet du TD4 « programmer avec une IA » du cours *Sensibilisation à la programmation multimédia*
 ([vestri/initiation-multimedia](https://github.com/vestri/initiation-multimedia)).
@@ -15,10 +17,11 @@ Le déroulé du développement avec l'IA est dans [`PROMPTS.md`](PROMPTS.md).
   (`deviceorientationabsolute` sur Android, `webkitCompassHeading` sur iOS)
 - 3 types d'aliens en voxels animés, vagues de plus en plus rapides, 3 vies, score et meilleur score
 - Tir par Raycaster depuis le viseur, explosions en particules
-- Radar 2D orienté selon le regard, flèches au bord de l'écran vers les aliens hors champ
-- Mini-carte **Leaflet** : position GPS réelle du joueur (sa base) et aliens convertis en coordonnées lat/lon
+- Position du joueur par **GPS** (lissée), aliens placés en mètres autour de lui et convertis en lat/lon
+- Radar 2D de 150 m orienté selon le regard, flèches au bord de l'écran vers les aliens proches hors champ
+- Mini-carte **Leaflet** qui suit le joueur : zone de tir de 40 m et tous les aliens
 - Sons rétro générés avec la Web Audio API
-- Mode PC : souris/flèches pour viser, clic/Espace pour tirer
+- Mode PC : souris/flèches pour viser, ZQSD/WASD pour se déplacer, clic/Espace pour tirer
 
 ## Lancer en local
 ```bash
@@ -39,7 +42,8 @@ Puis http://localhost:5173/. La caméra et les capteurs du téléphone nécessit
 | `src/effects.js` | Explosions en particules |
 | `src/radar.js` | Radar 2D |
 | `src/indicators.js` | Flèches vers les aliens hors champ |
-| `src/minimap.js` | Mini-carte Leaflet et conversion mètres → lat/lon |
+| `src/player.js` | Position du joueur (GPS lissé ou clavier), conversion mètres ↔ lat/lon |
+| `src/minimap.js` | Mini-carte Leaflet |
 | `src/game.js` | Règles : vagues, vies, score |
 | `src/hud.js` | Affichage du score, bannières, écrans |
 | `src/audio.js` | Effets sonores synthétisés |
