@@ -103,6 +103,64 @@ html, body {
   cursor: pointer;
 }
 
+#hud {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--panel);
+  border-radius: 10px;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+#banner {
+  position: fixed;
+  top: 28%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 40px;
+  font-weight: bold;
+  color: var(--green);
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  animation: banner-pop 0.4s ease-out;
+}
+
+@keyframes banner-pop {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+#damage {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, transparent 40%, rgba(255, 0, 0, 0.6));
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+#damage.visible {
+  opacity: 1;
+  transition: none;
+}
+
+.screen p {
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+.screen .small {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
 .hidden {
   display: none !important;
 }

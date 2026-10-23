@@ -10,7 +10,15 @@
   <video id="camera" playsinline muted autoplay></video>
   <canvas id="scene3d"></canvas>
   <div id="crosshair"></div>
+  <div id="damage"></div>
   <canvas id="radar"></canvas>
+
+  <div id="hud" class="hidden">
+    <div>Score <strong id="hud-score">0</strong></div>
+    <div>Vague <strong id="hud-wave">1</strong></div>
+    <div id="hud-lives"></div>
+  </div>
+  <div id="banner" class="hidden"></div>
 
   <div id="debug" class="hidden">
     <div>Mode : <span id="debug-mode">-</span></div>
@@ -20,9 +28,19 @@
 
   <div id="menu" class="screen">
     <h1>👾 Invasion AR</h1>
-    <p>Tourne sur toi-même pour repérer les points cardinaux.<br />
-    Sur PC : glisser la souris ou flèches du clavier.</p>
+    <p>Des envahisseurs arrivent de toutes les directions !<br />
+    Tourne sur toi-même pour viser, touche l'écran pour tirer.<br />
+    Le radar en bas à gauche montre d'où ils viennent.</p>
+    <p class="small">Sur PC : glisser la souris ou flèches pour viser, clic ou Espace pour tirer.</p>
+    <p id="menu-best"></p>
     <button id="btn-play">Jouer</button>
+  </div>
+
+  <div id="game-over" class="screen hidden">
+    <h1>💥 Base détruite</h1>
+    <p>Score : <strong id="final-score">0</strong></p>
+    <p>Meilleur score : <strong id="final-best">0</strong></p>
+    <button id="btn-replay">Rejouer</button>
   </div>
 
   <script type="module" src="/src/main.js"></script>
