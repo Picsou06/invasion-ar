@@ -2,6 +2,9 @@
  * Retro sound effects synthesized with the Web Audio API (no audio files).
  */
 export class Sounds {
+  /**
+   * The audio context is created later, on the first user gesture.
+   */
   constructor() {
     this.context = null;
     this.muted = false;

@@ -139,14 +139,23 @@ renderer.setAnimationLoop((time) => {
 
 hud.showMenu(game.bestScore);
 
-document.getElementById('btn-play').addEventListener('click', async () => {
+let launched = false;
+
+document.getElementById('btn-play').addEventListener('click', async (e) => {
+  e.currentTarget.blur();
+  if (launched) return;
+  launched = true;
   sounds.unlock();
   await orientation.start();
   await startCameraFeed(document.getElementById('camera'));
   miniMap.start();
   startGame();
 });
-document.getElementById('btn-replay').addEventListener('click', startGame);
+document.getElementById('btn-replay').addEventListener('click', (e) => {
+  e.currentTarget.blur();
+  startGame();
+});
 muteButton.addEventListener('click', () => {
+  muteButton.blur();
   muteButton.textContent = sounds.toggleMute() ? '🔇' : '🔊';
 });

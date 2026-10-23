@@ -40,7 +40,7 @@ export class MiniMap {
       attribution: '© OpenStreetMap',
     }).addTo(this.map);
 
-    this.accuracyCircle = L.circle(this.base, { radius: 0, color: '#4fc3ff', weight: 1, fillOpacity: 0.15 }).addTo(this.map);
+    this.accuracyCircle = L.circle(this.base, { radius: 0, color: '#4fc3ff', weight: 1, fillOpacity: 0.15, interactive: false }).addTo(this.map);
     this.playerMarker = L.marker(this.base, {
       icon: L.divIcon({ className: 'player-icon', html: '<div class="player-arrow"></div>', iconSize: [22, 22] }),
       interactive: false,
@@ -143,7 +143,7 @@ export class MiniMap {
         this.alienMarkers.get(alien).setLatLng(latLng);
       } else {
         const color = `#${alien.color.toString(16).padStart(6, '0')}`;
-        const marker = L.circleMarker(latLng, { radius: 5, color, fillColor: color, fillOpacity: 0.9, weight: 1 });
+        const marker = L.circleMarker(latLng, { radius: 5, color, fillColor: color, fillOpacity: 0.9, weight: 1, interactive: false });
         this.alienMarkers.set(alien, marker.addTo(this.map));
       }
     }

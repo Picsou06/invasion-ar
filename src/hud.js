@@ -5,6 +5,9 @@ const DAMAGE_FLASH_DURATION = 350;
  * DOM overlay of the game: score bar, wave banner, damage flash and screens.
  */
 export class Hud {
+  /**
+   * Looks up every DOM element of the overlay.
+   */
   constructor() {
     this.bar = document.getElementById('hud');
     this.score = document.getElementById('hud-score');
