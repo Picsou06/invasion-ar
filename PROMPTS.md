@@ -5,12 +5,12 @@ Les consignes permanentes données à l'IA sont dans [`CLAUDE.md`](CLAUDE.md).
 
 ## Feuille de route
 - [x] Étape 1 : caméra en fond + scène 3D transparente qui suit l'orientation du téléphone + repères N/E/S/O
-- [ ] Étape 2 : apparition et déplacement des aliens vers le joueur
-- [ ] Étape 3 : tir (toucher l'écran, Raycaster depuis le viseur) et explosions
-- [ ] Étape 4 : radar 2D (canvas) indiquant la direction des ennemis
-- [ ] Étape 5 : vagues, vies, score, écran de fin
-- [ ] Étape 6 : mini-carte Leaflet avec la position GPS de la "base"
-- [ ] Étape 7 : particules, sons, finitions
+- [x] Étape 2 : apparition et déplacement des aliens vers le joueur
+- [x] Étape 3 : tir (toucher l'écran, Raycaster depuis le viseur) et explosions
+- [x] Étape 4 : radar 2D (canvas) indiquant la direction des ennemis
+- [x] Étape 5 : vagues, vies, score, écran de fin
+- [x] Étape 6 : mini-carte Leaflet avec la position GPS de la "base"
+- [x] Étape 7 : sons, bouton muet, flèches vers les aliens hors champ
 
 ---
 
@@ -57,3 +57,36 @@ Les cubes de test sont remplacés par des lettres N/E/S/O flottant sur l'horizon
 **Test PC :** _à compléter_
 
 **Test smartphone :** _à compléter (la caméra s'affiche ? les lettres restent fixes quand on tourne ? mode affiché avec `?debug` ?)_
+
+---
+
+## Étapes 2 à 7 - Développement du jeu
+
+Faites dans la foulée du même prompt (« Fais toutes les etapes [...] continue d'avancer sur l'app »),
+avec un commit par étape (voir `git log`). L'IA a vérifié chaque étape en compilant (`npm run build`)
+puis en lançant le jeu dans un navigateur sans écran (Edge headless) avec des appuis clavier simulés,
+et en regardant une capture d'écran.
+
+| Étape | Ce qui a été fait | Vérification par l'IA |
+|---|---|---|
+| 2 - Aliens | 3 types d'envahisseurs en voxels (bitmaps pixel-art fusionnées en une géométrie), 2 images d'animation, avancent vers le joueur | Capture : aliens visibles autour du repère N |
+| 3 - Tir | Raycaster depuis le centre de l'écran sur des sphères invisibles (plus faciles à toucher), laser, explosion en particules | Pas d'erreur console ; le tir est validé à l'étape 5 grâce au score |
+| 4 - Radar | Canvas 2D orienté selon le regard, cône de vision, balayage | Les points du radar correspondent aux aliens visibles |
+| 5 - Règles | Vagues (plus d'aliens, plus rapides), 3 vies, bonus de fin de vague, meilleur score en `localStorage` | Score à 80 après une rafale simulée ; écran de fin après 60 s sans tirer |
+| 6 - Carte | Leaflet + OSM, position GPS (IUT par défaut), aliens convertis mètres → lat/lon | Carte, radar et vue 3D cohérents |
+| 7 - Finitions | Sons Web Audio synthétisés, bouton muet, flèches au bord de l'écran vers les aliens hors champ | Flèches du côté des points du radar |
+
+**Bug trouvé et corrigé pendant l'étape 6 :** la carte Leaflet était créée dans un bloc caché
+(`display: none`) donc avec une taille nulle ; il faut appeler `map.invalidateSize()` au moment de l'afficher.
+
+**Choix expliqués par l'IA :**
+- Les aliens sont générés par code (pixel-art → cubes fusionnés) plutôt que des modèles glTF :
+  pas de fichiers lourds, style rétro, et une seule géométrie partagée par type d'alien.
+- 1 unité 3D = 1 mètre, ce qui permet de placer les aliens sur la vraie carte (1° de latitude ≈ 111 320 m).
+- Les sons sont synthétisés (oscillateurs + bruit blanc) : aucun fichier audio à charger.
+
+**Test PC :** _à compléter_
+
+**Test smartphone :** _à compléter_
+
+**Ce que j'ai appris :** _à compléter_
