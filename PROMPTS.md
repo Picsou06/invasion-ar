@@ -79,6 +79,11 @@ et en regardant une capture d'écran.
 **Bug trouvé et corrigé pendant l'étape 6 :** la carte Leaflet était créée dans un bloc caché
 (`display: none`) donc avec une taille nulle ; il faut appeler `map.invalidateSize()` au moment de l'afficher.
 
+**Bug trouvé en relecture :** sur PC, après un vrai clic sur « Jouer », le bouton gardait le focus ;
+chaque appui sur Espace (pour tirer) recliquait dessus et relançait la partie. Les tests avec des événements
+simulés en JavaScript ne le montraient pas, il a fallu de vrais événements clavier/souris (CDP `Input.*`).
+Correction : `blur()` sur les boutons après le clic + garde contre un double lancement.
+
 **Choix expliqués par l'IA :**
 - Les aliens sont générés par code (pixel-art → cubes fusionnés) plutôt que des modèles glTF :
   pas de fichiers lourds, style rétro, et une seule géométrie partagée par type d'alien.
