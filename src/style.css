@@ -103,6 +103,38 @@ html, body {
   transform-origin: 50% 60%;
 }
 
+#indicators {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.offscreen-arrow {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  margin: -10px 0 0 -9px;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 18px solid var(--red);
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
+}
+
+#btn-mute {
+  position: fixed;
+  top: 56px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--panel);
+  font-size: 18px;
+  cursor: pointer;
+}
+
 #debug {
   position: fixed;
   top: 60px;

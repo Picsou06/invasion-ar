@@ -10,6 +10,8 @@ import { Radar } from './radar.js';
 import { Game } from './game.js';
 import { Hud } from './hud.js';
 import { MiniMap } from './minimap.js';
+import { Sounds } from './audio.js';
+import { OffscreenIndicators } from './indicators.js';
 
 const canvas = document.getElementById('scene3d');
 const { renderer, scene, camera } = createScene(canvas);
@@ -25,6 +27,9 @@ const miniMap = new MiniMap(
   document.getElementById('minimap'),
   document.getElementById('minimap-status')
 );
+const sounds = new Sounds();
+const indicators = new OffscreenIndicators(document.getElementById('indicators'));
+const muteButton = document.getElementById('btn-mute');
 const timer = new Timer();
 
 const debug = {
@@ -64,10 +69,12 @@ function updateDebug() {
  */
 function fire() {
   if (!game.isRunning) return;
-  const { hit } = shooter.shoot(aliens.hitboxes);
+  const { fired, hit } = shooter.shoot(aliens.hitboxes);
+  if (fired) sounds.shoot();
   if (!hit) return;
   const alien = hit.userData.alien;
   explosions.spawn(alien.object.position, alien.color);
+  sounds.explosion();
   aliens.remove(alien);
   game.addKill(alien);
 }
@@ -79,13 +86,20 @@ function fire() {
  */
 function handleGameEvents(events) {
   for (const event of events) {
-    if (event === 'wave-start') hud.showBanner(`Vague ${game.wave}`);
+    if (event === 'wave-start') {
+      hud.showBanner(`Vague ${game.wave}`);
+      sounds.waveStart();
+    }
     if (event === 'wave-cleared') hud.showBanner('Vague terminée !');
     if (event === 'damage') {
       hud.flashDamage();
+      sounds.damage();
       navigator.vibrate?.(200);
     }
-    if (event === 'game-over') hud.showGameOver(game.score, game.bestScore);
+    if (event === 'game-over') {
+      hud.showGameOver(game.score, game.bestScore);
+      sounds.gameOver();
+    }
   }
 }
 
@@ -95,6 +109,7 @@ function handleGameEvents(events) {
 function startGame() {
   game.start();
   hud.showGame();
+  muteButton.classList.remove('hidden');
   miniMap.show();
   hud.showBanner('Préparez-vous !');
 }
@@ -116,6 +131,7 @@ renderer.setAnimationLoop((time) => {
   explosions.update(delta);
   radar.draw(delta, orientation.heading, camera, aliens.aliens);
   miniMap.update(delta, orientation.heading, aliens.aliens);
+  indicators.update(camera, aliens.aliens);
   hud.update(game);
   updateDebug();
   renderer.render(scene, camera);
@@ -124,9 +140,13 @@ renderer.setAnimationLoop((time) => {
 hud.showMenu(game.bestScore);
 
 document.getElementById('btn-play').addEventListener('click', async () => {
+  sounds.unlock();
   await orientation.start();
   await startCameraFeed(document.getElementById('camera'));
   miniMap.start();
   startGame();
 });
 document.getElementById('btn-replay').addEventListener('click', startGame);
+muteButton.addEventListener('click', () => {
+  muteButton.textContent = sounds.toggleMute() ? '🔇' : '🔊';
+});
