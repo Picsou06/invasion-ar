@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#05070d" />
+  <title>Invasion AR</title>
+</head>
+<body>
+  <video id="camera" playsinline muted autoplay></video>
+  <canvas id="scene3d"></canvas>
+  <div id="crosshair"></div>
+
+  <div id="debug" class="hidden">
+    <div>Mode : <span id="debug-mode">-</span></div>
+    <div>Cap : <span id="debug-heading">-</span></div>
+    <div>α <span id="debug-alpha">-</span> β <span id="debug-beta">-</span> γ <span id="debug-gamma">-</span></div>
+  </div>
+
+  <div id="menu" class="screen">
+    <h1>👾 Invasion AR</h1>
+    <p>Tourne sur toi-même pour repérer les points cardinaux.<br />
+    Sur PC : glisser la souris ou flèches du clavier.</p>
+    <button id="btn-play">Jouer</button>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
