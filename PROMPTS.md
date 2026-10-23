@@ -169,3 +169,9 @@ et grossissent en approchant. La hitbox étant un enfant de l'alien, elle grossi
 ml5 continue de les détecter en arrière-plan pour la pénalité. Le menu prévient le joueur de ne pas tirer
 sur les autres humains. Un tir qui touche un alien placé devant un humain ne coûte rien : la pénalité ne
 s'applique que si le tir ne touche aucun alien.
+
+**Prompt :**
+> Trop long. Tous les textes reduits les [...] Donne justes les infos importantes les gens ont la flemme de lire
+
+**Résultat :** le menu est réduit à l'essentiel : comment viser, comment tirer, ne pas tirer sur les humains,
+et une ligne pour les contrôles PC.
