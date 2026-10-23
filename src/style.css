@@ -63,6 +63,46 @@ html, body {
   pointer-events: none;
 }
 
+#minimap-panel {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  width: 150px;
+  pointer-events: none;
+}
+
+#minimap {
+  width: 150px;
+  height: 150px;
+  border-radius: 12px;
+  border: 2px solid rgba(79, 195, 255, 0.7);
+  background: #1d2b4a;
+}
+
+#minimap .leaflet-control-attribution {
+  font-size: 8px;
+  padding: 0 3px;
+}
+
+#minimap-status {
+  margin-top: 4px;
+  padding: 2px 6px;
+  background: var(--panel);
+  border-radius: 6px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.player-arrow {
+  width: 0;
+  height: 0;
+  margin: 1px auto 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 20px solid #ff3b3b;
+  transform-origin: 50% 60%;
+}
+
 #debug {
   position: fixed;
   top: 60px;

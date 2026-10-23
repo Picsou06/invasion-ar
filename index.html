@@ -12,6 +12,10 @@
   <div id="crosshair"></div>
   <div id="damage"></div>
   <canvas id="radar"></canvas>
+  <div id="minimap-panel" class="hidden">
+    <div id="minimap"></div>
+    <div id="minimap-status"></div>
+  </div>
 
   <div id="hud" class="hidden">
     <div>Score <strong id="hud-score">0</strong></div>
@@ -30,7 +34,8 @@
     <h1>👾 Invasion AR</h1>
     <p>Des envahisseurs arrivent de toutes les directions !<br />
     Tourne sur toi-même pour viser, touche l'écran pour tirer.<br />
-    Le radar en bas à gauche montre d'où ils viennent.</p>
+    Le radar en bas à gauche montre d'où ils viennent,<br />
+    la carte en bas à droite montre ta base (ta position GPS réelle).</p>
     <p class="small">Sur PC : glisser la souris ou flèches pour viser, clic ou Espace pour tirer.</p>
     <p id="menu-best"></p>
     <button id="btn-play">Jouer</button>

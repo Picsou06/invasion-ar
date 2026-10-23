@@ -9,6 +9,7 @@ import { Explosions } from './effects.js';
 import { Radar } from './radar.js';
 import { Game } from './game.js';
 import { Hud } from './hud.js';
+import { MiniMap } from './minimap.js';
 
 const canvas = document.getElementById('scene3d');
 const { renderer, scene, camera } = createScene(canvas);
@@ -19,6 +20,11 @@ const explosions = new Explosions(scene);
 const radar = new Radar(document.getElementById('radar'));
 const game = new Game(aliens);
 const hud = new Hud();
+const miniMap = new MiniMap(
+  document.getElementById('minimap-panel'),
+  document.getElementById('minimap'),
+  document.getElementById('minimap-status')
+);
 const timer = new Timer();
 
 const debug = {
@@ -89,6 +95,7 @@ function handleGameEvents(events) {
 function startGame() {
   game.start();
   hud.showGame();
+  miniMap.show();
   hud.showBanner('Préparez-vous !');
 }
 
@@ -108,6 +115,7 @@ renderer.setAnimationLoop((time) => {
   shooter.update(delta);
   explosions.update(delta);
   radar.draw(delta, orientation.heading, camera, aliens.aliens);
+  miniMap.update(delta, orientation.heading, aliens.aliens);
   hud.update(game);
   updateDebug();
   renderer.render(scene, camera);
@@ -118,6 +126,7 @@ hud.showMenu(game.bestScore);
 document.getElementById('btn-play').addEventListener('click', async () => {
   await orientation.start();
   await startCameraFeed(document.getElementById('camera'));
+  miniMap.start();
   startGame();
 });
 document.getElementById('btn-replay').addEventListener('click', startGame);
