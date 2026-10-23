@@ -4,7 +4,9 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 const PIXEL_SIZE = 0.25;
 const PIXEL_DEPTH = 0.35;
 const FRAME_DURATION = 0.5;
-export const VISIBLE_RANGE = 40;
+export const VISIBLE_RANGE = 70;
+const FULL_SIZE_DISTANCE = 10;
+const MIN_SCALE = 0.6;
 const REACH_DISTANCE = 2;
 const HITBOX_GEOMETRY = new THREE.SphereGeometry(1.8, 8, 6);
 const HITBOX_MATERIAL = new THREE.MeshBasicMaterial({ visible: false });
@@ -118,7 +120,8 @@ export class Alien {
 
   /**
    * Moves the alien toward the player, lowers it to eye level as it gets
-   * closer, swaps its animation frame and shows it only within VISIBLE_RANGE.
+   * closer, grows it from MIN_SCALE to full size, swaps its animation frame
+   * and shows it only within VISIBLE_RANGE.
    *
    * @param {number} delta seconds since the previous frame
    * @param {number} elapsed seconds since the game started
@@ -140,6 +143,10 @@ export class Alien {
       this.ground.y + side.y * wobble
     );
     this.object.lookAt(player.x, 0, player.z);
+    this.object.scale.setScalar(THREE.MathUtils.mapLinear(
+      THREE.MathUtils.clamp(this.distance, FULL_SIZE_DISTANCE, VISIBLE_RANGE),
+      VISIBLE_RANGE, FULL_SIZE_DISTANCE, MIN_SCALE, 1
+    ));
     this.object.visible = this.isVisible;
     this.mesh.geometry = this.frames[Math.floor(elapsed / FRAME_DURATION) % 2];
   }

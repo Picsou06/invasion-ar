@@ -154,3 +154,10 @@ atteint le joueur en ~30 s (au lieu de ~60 s).
 > Et enleve le texte IA ACTIVE en haut a gauche
 
 **Résultat :** l'indicateur d'état de ml5 est retiré de l'écran ; les erreurs de chargement restent visibles dans la console.
+
+**Prompt :**
+> Affiche de plus loins que ça mais la taille est petite et ça augmente au fur et a mesure.
+
+**Résultat :** les aliens sont visibles (et touchables) dès 70 m, donc dès leur apparition (53-68 m).
+En plus de la perspective, leur taille passe de 60 % à 70 m à 100 % à 10 m : ils sont tout petits au loin
+et grossissent en approchant. La hitbox étant un enfant de l'alien, elle grossit avec lui.

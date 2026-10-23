@@ -2,7 +2,7 @@
 
 Jeu de tir en réalité augmentée géolocalisé pour smartphone : des envahisseurs en pixel-art atterrissent
 autour du joueur dans le monde réel et foncent sur sa position. Il les repère sur la carte, se déplace vers
-eux, et quand ils sont à moins de 40 m ils apparaissent dans le flux caméra : il vise en tournant sur lui-même
+eux ; à moins de 70 m ils apparaissent dans le flux caméra, petits puis de plus en plus gros : il vise en tournant sur lui-même
 et touche l'écran pour tirer.
 
 **Jouer :** https://picsou06.github.io/invasion-ar/ (sur smartphone, autoriser caméra, mouvement et position)
@@ -19,7 +19,7 @@ Le déroulé du développement avec l'IA est dans [`PROMPTS.md`](PROMPTS.md).
 - Tir par Raycaster depuis le viseur, explosions en particules
 - Position du joueur par **GPS** (lissée), aliens placés en mètres autour de lui et convertis en lat/lon
 - Radar 2D de 150 m orienté selon le regard, flèches au bord de l'écran vers les aliens proches hors champ
-- Mini-carte **Leaflet** qui suit le joueur : zone de tir de 40 m et tous les aliens
+- Mini-carte **Leaflet** qui suit le joueur : zone de tir de 70 m et tous les aliens
 - **ml5.js** (COCO-SSD) détecte les humains dans la caméra : ils sont encadrés, et leur tirer dessus coûte 25 points
 - Musique 8-bit originale et sons rétro générés avec la Web Audio API
 - Mode PC : souris/flèches pour viser, ZQSD/WASD pour se déplacer, clic/Espace pour tirer
