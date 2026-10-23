@@ -27,13 +27,11 @@ export class HumanDetector {
   /**
    * @param {HTMLVideoElement} video camera feed to analyse
    * @param {HTMLCanvasElement} overlay full-screen canvas used to draw the frames
-   * @param {HTMLElement} status element displaying the detector state
    */
-  constructor(video, overlay, status) {
+  constructor(video, overlay) {
     this.video = video;
     this.overlay = overlay;
     this.ctx = overlay.getContext('2d');
-    this.status = status;
     this.detector = null;
     this.people = [];
     this.resize();
@@ -46,16 +44,13 @@ export class HumanDetector {
    */
   async start() {
     if (!this.video.srcObject || this.detector) return;
-    this.setStatus('👤 IA : chargement…');
     try {
       const ml5 = await loadMl5();
       this.detector = await ml5.objectDetection('cocossd');
       await this.detector.ready;
-      this.setStatus('👤 IA : active');
       this.detectLoop();
     } catch (err) {
       console.warn('Human detection unavailable:', err);
-      this.setStatus('👤 IA : indisponible');
     }
   }
 
@@ -134,13 +129,5 @@ export class HumanDetector {
       const box = this.toScreen(person);
       return x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height;
     });
-  }
-
-  /**
-   * @param {string} text detector state shown to the player
-   */
-  setStatus(text) {
-    this.status.textContent = text;
-    this.status.classList.remove('hidden');
   }
 }

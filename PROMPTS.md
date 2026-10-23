@@ -149,3 +149,8 @@ La détection d'une vraie personne n'a pas pu être testée sur PC → à tester
 (au lieu de 75-105 m), puis un peu plus près à chaque vague (minimum 45 m, toujours hors de la zone pour
 qu'on les voie d'abord sur la carte). Sans bouger, le premier alien entre dans la zone en ~10 s et
 atteint le joueur en ~30 s (au lieu de ~60 s).
+
+**Prompt :**
+> Et enleve le texte IA ACTIVE en haut a gauche
+
+**Résultat :** l'indicateur d'état de ml5 est retiré de l'écran ; les erreurs de chargement restent visibles dans la console.

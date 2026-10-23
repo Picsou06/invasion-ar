@@ -213,17 +213,6 @@ html, body {
   color: var(--red);
 }
 
-#ai-status {
-  position: fixed;
-  top: 56px;
-  left: 8px;
-  padding: 4px 8px;
-  background: var(--panel);
-  border-radius: 6px;
-  font-size: 12px;
-  pointer-events: none;
-}
-
 #damage {
   position: fixed;
   inset: 0;
