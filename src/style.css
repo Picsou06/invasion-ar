@@ -16,7 +16,7 @@ html, body {
   -webkit-user-select: none;
 }
 
-#camera, #humans, #scene3d {
+#camera, #scene3d {
   position: fixed;
   inset: 0;
   width: 100%;

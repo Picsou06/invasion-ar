@@ -161,3 +161,11 @@ atteint le joueur en ~30 s (au lieu de ~60 s).
 **Résultat :** les aliens sont visibles (et touchables) dès 70 m, donc dès leur apparition (53-68 m).
 En plus de la perspective, leur taille passe de 60 % à 70 m à 100 % à 10 m : ils sont tout petits au loin
 et grossissent en approchant. La hitbox étant un enfant de l'alien, elle grossit avec lui.
+
+**Prompt :**
+> N'affiche pas le carré autour des humains si possible. Mais dans l'explication au debut avant de commencer tu peux le dire de faire gaffe a pas tirer sur les autres humains
+
+**Résultat :** les cadres autour des humains ne sont plus dessinés (le canvas `#humans` est supprimé) ;
+ml5 continue de les détecter en arrière-plan pour la pénalité. Le menu prévient le joueur de ne pas tirer
+sur les autres humains. Un tir qui touche un alien placé devant un humain ne coûte rien : la pénalité ne
+s'applique que si le tir ne touche aucun alien.

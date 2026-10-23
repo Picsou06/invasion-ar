@@ -20,22 +20,17 @@ function loadMl5() {
 }
 
 /**
- * Detects people in the camera feed with ml5.js (COCO-SSD object detection),
- * draws a frame around them and tells whether a screen point is on a person.
+ * Detects people in the camera feed with ml5.js (COCO-SSD object detection)
+ * and tells whether a screen point is on a person.
  */
 export class HumanDetector {
   /**
    * @param {HTMLVideoElement} video camera feed to analyse
-   * @param {HTMLCanvasElement} overlay full-screen canvas used to draw the frames
    */
-  constructor(video, overlay) {
+  constructor(video) {
     this.video = video;
-    this.overlay = overlay;
-    this.ctx = overlay.getContext('2d');
     this.detector = null;
     this.people = [];
-    this.resize();
-    window.addEventListener('resize', () => this.resize());
   }
 
   /**
@@ -63,21 +58,11 @@ export class HumanDetector {
       try {
         const results = await this.detector.detect(this.video);
         this.people = results.filter((r) => r.label === 'person' && r.confidence >= MIN_CONFIDENCE);
-        this.draw();
       } catch (err) {
         console.warn('Detection failed:', err);
       }
     }
     setTimeout(() => this.detectLoop(), DETECTION_INTERVAL);
-  }
-
-  /**
-   * Matches the overlay resolution to the window size.
-   */
-  resize() {
-    this.overlay.width = window.innerWidth;
-    this.overlay.height = window.innerHeight;
-    this.draw();
   }
 
   /**
@@ -98,25 +83,6 @@ export class HumanDetector {
       width: box.width * scale,
       height: box.height * scale,
     };
-  }
-
-  /**
-   * Draws a dashed frame and a label around every detected person.
-   */
-  draw() {
-    const { ctx } = this;
-    ctx.clearRect(0, 0, this.overlay.width, this.overlay.height);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([8, 6]);
-    ctx.font = '13px sans-serif';
-    for (const person of this.people) {
-      const box = this.toScreen(person);
-      ctx.strokeRect(box.x, box.y, box.width, box.height);
-      ctx.fillText(`Humain ${Math.round(person.confidence * 100)}%`, box.x + 4, box.y + 16);
-    }
-    ctx.setLineDash([]);
   }
 
   /**

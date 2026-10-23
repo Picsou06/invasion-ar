@@ -20,7 +20,7 @@ Le déroulé du développement avec l'IA est dans [`PROMPTS.md`](PROMPTS.md).
 - Position du joueur par **GPS** (lissée), aliens placés en mètres autour de lui et convertis en lat/lon
 - Radar 2D de 150 m orienté selon le regard, flèches au bord de l'écran vers les aliens proches hors champ
 - Mini-carte **Leaflet** qui suit le joueur : zone de tir de 70 m et tous les aliens
-- **ml5.js** (COCO-SSD) détecte les humains dans la caméra : ils sont encadrés, et leur tirer dessus coûte 25 points
+- **ml5.js** (COCO-SSD) détecte (sans les afficher) les humains dans la caméra : leur tirer dessus coûte 25 points
 - Musique 8-bit originale et sons rétro générés avec la Web Audio API
 - Mode PC : souris/flèches pour viser, ZQSD/WASD pour se déplacer, clic/Espace pour tirer
 

@@ -38,7 +38,7 @@ const indicators = new OffscreenIndicators(document.getElementById('indicators')
 const muteButton = document.getElementById('btn-mute');
 const music = new Music(sounds);
 const video = document.getElementById('camera');
-const humanDetector = new HumanDetector(video, document.getElementById('humans'));
+const humanDetector = new HumanDetector(video);
 const HUMAN_PENALTY = 25;
 const timer = new Timer();
 
