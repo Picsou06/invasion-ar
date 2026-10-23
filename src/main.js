@@ -2,10 +2,16 @@ import './style.css';
 import { createScene } from './scene.js';
 import { OrientationController } from './orientation.js';
 import { startCameraFeed } from './cameraFeed.js';
+import { AlienManager } from './aliens.js';
+import { Timer } from 'three';
 
 const canvas = document.getElementById('scene3d');
 const { renderer, scene, camera } = createScene(canvas);
 const orientation = new OrientationController(camera, canvas);
+const aliens = new AlienManager(scene);
+const timer = new Timer();
+let started = false;
+let spawnCooldown = 0;
 
 const debug = {
   panel: document.getElementById('debug'),
@@ -39,8 +45,18 @@ function updateDebug() {
   debug.gamma.textContent = formatAngle(orientation.sensor.gamma);
 }
 
-renderer.setAnimationLoop(() => {
+renderer.setAnimationLoop((time) => {
+  timer.update(time);
+  const delta = Math.min(timer.getDelta(), 0.1);
   orientation.update();
+  if (started) {
+    spawnCooldown -= delta;
+    if (spawnCooldown <= 0 && aliens.aliens.length < 8) {
+      aliens.spawnRandom();
+      spawnCooldown = 2.5;
+    }
+    aliens.update(delta, timer.getElapsed());
+  }
   updateDebug();
   renderer.render(scene, camera);
 });
@@ -49,4 +65,5 @@ document.getElementById('btn-play').addEventListener('click', async () => {
   await orientation.start();
   await startCameraFeed(document.getElementById('camera'));
   document.getElementById('menu').classList.add('hidden');
+  started = true;
 });
